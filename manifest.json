@@ -1,0 +1,9 @@
+{
+  "name": "Zephaniah — Grade 7",
+  "short_name": "Zephaniah",
+  "start_url": "/zephaniah/",
+  "scope": "/zephaniah/",
+  "display": "standalone",
+  "background_color": "#f5f1e8",
+  "theme_color": "#245b48"
+}
