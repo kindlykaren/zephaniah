@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded',()=>{
   const style=document.createElement('style');
-  style.textContent=`.study-timer{margin:18px 0;padding:14px 16px;border:1px solid #b9cabf;border-radius:14px;background:#e9efe9;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}.study-timer strong{display:block;font:600 2rem Georgia;color:#18231e;letter-spacing:.04em}.timer-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.timer-controls label{font-weight:800;color:#245b48}.timer-controls input{width:64px;padding:8px;border:1px solid #9ab3a8;border-radius:9px;background:#fff;font:inherit}.timer-controls button{padding:9px 13px}.timer-start{background:#245b48;color:#fff;border-color:#245b48}@media(max-width:620px){.study-timer{align-items:flex-start}.timer-controls{width:100%}}`;
+  style.textContent=`.study-timer{position:fixed;z-index:1000;left:50%;bottom:14px;transform:translateX(-50%);width:min(940px,calc(100% - 24px));padding:12px 16px;border:1px solid #b9cabf;border-radius:14px;background:#e9efe9;box-shadow:0 8px 28px #18231e33;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}.study-timer strong{display:block;font:600 2rem Georgia;color:#18231e;letter-spacing:.04em}.timer-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.timer-controls label{font-weight:800;color:#245b48}.timer-controls input{width:64px;padding:8px;border:1px solid #9ab3a8;border-radius:9px;background:#fff;font:inherit}.timer-controls button{padding:9px 13px}.timer-start{background:#245b48;color:#fff;border-color:#245b48}body{padding-bottom:132px}@media(max-width:620px){.study-timer{bottom:8px;padding:10px 12px}.study-timer strong{font-size:1.65rem}.timer-controls{gap:6px}.timer-controls button{padding:7px 9px}.timer-controls label{font-size:.9rem}body{padding-bottom:180px}}`;
   document.head.append(style);
   const anchor=document.querySelector('header p');
   if(!anchor||document.getElementById('studyTimer'))return;
@@ -12,12 +12,13 @@ document.addEventListener('DOMContentLoaded',()=>{
   const display=document.getElementById('timerDisplay'),minutes=document.getElementById('timerMinutes'),start=document.getElementById('timerStart');
   const draw=()=>{const m=Math.floor(remaining/60),s=remaining%60;display.textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')};
   const stop=()=>{clearInterval(handle);handle=null;start.textContent='Start'};
-  const setMinutes=value=>{stop();minutes.value=value;remaining=value*60;draw()};
+  const begin=()=>{if(handle)return; if(remaining<=0){remaining=Math.max(1,Number(minutes.value)||10)*60;draw()} start.textContent='Pause';handle=setInterval(()=>{remaining--;draw();if(remaining<=0){stop();display.textContent='Time’s up!'}},1000)};
+  const setMinutes=(value,autoStart=false)=>{stop();minutes.value=value;remaining=value*60;draw();if(autoStart)begin()};
   minutes.onchange=()=>setMinutes(Math.max(1,Math.min(180,Number(minutes.value)||10)));
-  document.getElementById('timerFocus30').onclick=()=>setMinutes(30);
-  document.getElementById('timerFocus10').onclick=()=>setMinutes(10);
-  document.getElementById('timerBreak5').onclick=()=>setMinutes(5);
-  start.onclick=()=>{if(handle){stop();return}if(remaining<=0)setMinutes(Math.max(1,Number(minutes.value)||10));start.textContent='Pause';handle=setInterval(()=>{remaining--;draw();if(remaining<=0){stop();display.textContent='Time’s up!'}},1000)};
+  document.getElementById('timerFocus30').onclick=()=>setMinutes(30,true);
+  document.getElementById('timerFocus10').onclick=()=>setMinutes(10,true);
+  document.getElementById('timerBreak5').onclick=()=>setMinutes(5,true);
+  start.onclick=()=>{if(handle)stop();else begin()};
   document.getElementById('timerReset').onclick=()=>setMinutes(Math.max(1,Number(minutes.value)||10));
   draw();
 });
