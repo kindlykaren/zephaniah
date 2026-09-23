@@ -1,0 +1,23 @@
+document.addEventListener('DOMContentLoaded',()=>{
+  const style=document.createElement('style');
+  style.textContent=`.study-timer{margin:18px 0;padding:14px 16px;border:1px solid #b9cabf;border-radius:14px;background:#e9efe9;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}.study-timer strong{display:block;font:600 2rem Georgia;color:#18231e;letter-spacing:.04em}.timer-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.timer-controls label{font-weight:800;color:#245b48}.timer-controls input{width:64px;padding:8px;border:1px solid #9ab3a8;border-radius:9px;background:#fff;font:inherit}.timer-controls button{padding:9px 13px}.timer-start{background:#245b48;color:#fff;border-color:#245b48}@media(max-width:620px){.study-timer{align-items:flex-start}.timer-controls{width:100%}}`;
+  document.head.append(style);
+  const anchor=document.querySelector('header p');
+  if(!anchor||document.getElementById('studyTimer'))return;
+  const box=document.createElement('section');
+  box.className='study-timer';box.id='studyTimer';
+  box.innerHTML='<div><small>Study timer</small><strong id="timerDisplay" aria-live="polite">10:00</strong></div><div class="timer-controls"><label>Minutes <input id="timerMinutes" type="number" min="1" max="180" value="10"></label><button id="timerFocus30">Focus 30</button><button id="timerFocus10">Focus 10</button><button id="timerBreak5">Break 5</button><button class="timer-start" id="timerStart">Start</button><button id="timerReset">Reset</button></div>';
+  anchor.insertAdjacentElement('afterend',box);
+  let remaining=600,handle=null;
+  const display=document.getElementById('timerDisplay'),minutes=document.getElementById('timerMinutes'),start=document.getElementById('timerStart');
+  const draw=()=>{const m=Math.floor(remaining/60),s=remaining%60;display.textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')};
+  const stop=()=>{clearInterval(handle);handle=null;start.textContent='Start'};
+  const setMinutes=value=>{stop();minutes.value=value;remaining=value*60;draw()};
+  minutes.onchange=()=>setMinutes(Math.max(1,Math.min(180,Number(minutes.value)||10)));
+  document.getElementById('timerFocus30').onclick=()=>setMinutes(30);
+  document.getElementById('timerFocus10').onclick=()=>setMinutes(10);
+  document.getElementById('timerBreak5').onclick=()=>setMinutes(5);
+  start.onclick=()=>{if(handle){stop();return}if(remaining<=0)setMinutes(Math.max(1,Number(minutes.value)||10));start.textContent='Pause';handle=setInterval(()=>{remaining--;draw();if(remaining<=0){stop();display.textContent='Time’s up!'}},1000)};
+  document.getElementById('timerReset').onclick=()=>setMinutes(Math.max(1,Number(minutes.value)||10));
+  draw();
+});
