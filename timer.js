@@ -8,12 +8,15 @@ document.addEventListener('DOMContentLoaded',()=>{
   box.className='study-timer';box.id='studyTimer';
   box.innerHTML='<div><small>Study timer</small><strong id="timerDisplay" aria-live="polite">10:00</strong></div><div class="timer-controls"><label>Minutes <input id="timerMinutes" type="number" min="1" max="180" value="10"></label><button id="timerFocus30">Focus 30</button><button id="timerFocus10">Focus 10</button><button id="timerBreak5">Break 5</button><button class="timer-start" id="timerStart">Start</button><button id="timerReset">Reset</button></div>';
   anchor.insertAdjacentElement('afterend',box);
-  let remaining=600,handle=null;
+  let remaining=600,handle=null,alarmHandle=null,audioContext=null;
   const display=document.getElementById('timerDisplay'),minutes=document.getElementById('timerMinutes'),start=document.getElementById('timerStart');
   const draw=()=>{const m=Math.floor(remaining/60),s=remaining%60;display.textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')};
+  const prepareAudio=()=>{try{audioContext||(audioContext=new(window.AudioContext||window.webkitAudioContext)());if(audioContext.state==='suspended')audioContext.resume()}catch{}};
+  const chime=()=>{try{prepareAudio();const now=audioContext.currentTime;[523.25,659.25,783.99].forEach((tone,index)=>{const oscillator=audioContext.createOscillator(),gain=audioContext.createGain(),at=now+index*.18;oscillator.type='sine';oscillator.frequency.value=tone;gain.gain.setValueAtTime(.0001,at);gain.gain.exponentialRampToValueAtTime(.07,at+.025);gain.gain.exponentialRampToValueAtTime(.0001,at+.5);oscillator.connect(gain).connect(audioContext.destination);oscillator.start(at);oscillator.stop(at+.52)})}catch{}};
+  const silence=()=>{clearInterval(alarmHandle);alarmHandle=null};
   const stop=()=>{clearInterval(handle);handle=null;start.textContent='Start'};
-  const begin=()=>{if(handle)return; if(remaining<=0){remaining=Math.max(1,Number(minutes.value)||10)*60;draw()} start.textContent='Pause';handle=setInterval(()=>{remaining--;draw();if(remaining<=0){stop();display.textContent='Time’s up!'}},1000)};
-  const setMinutes=(value,autoStart=false)=>{stop();minutes.value=value;remaining=value*60;draw();if(autoStart)begin()};
+  const begin=()=>{silence();prepareAudio();if(handle)return;if(remaining<=0){remaining=Math.max(1,Number(minutes.value)||10)*60;draw()}start.textContent='Pause';handle=setInterval(()=>{remaining--;draw();if(remaining<=0){stop();display.textContent='Time’s up!';chime();alarmHandle=setInterval(chime,4000)}},1000)};
+  const setMinutes=(value,autoStart=false)=>{silence();stop();minutes.value=value;remaining=value*60;draw();if(autoStart)begin()};
   minutes.onchange=()=>setMinutes(Math.max(1,Math.min(180,Number(minutes.value)||10)));
   document.getElementById('timerFocus30').onclick=()=>setMinutes(30,true);
   document.getElementById('timerFocus10').onclick=()=>setMinutes(10,true);
