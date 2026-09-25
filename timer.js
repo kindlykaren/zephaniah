@@ -9,17 +9,19 @@ document.addEventListener('DOMContentLoaded',()=>{
   box.innerHTML='<div><small>Study timer</small><strong id="timerDisplay" aria-live="polite">10:00</strong></div><div class="timer-controls"><label>Minutes <input id="timerMinutes" type="number" min="1" max="180" value="10"></label><button class="timer-preset" id="timerFocus30">Focus 30</button><button class="timer-preset" id="timerFocus10">Focus 10</button><button class="timer-preset" id="timerBreak5">Break 5</button><button class="timer-start" id="timerStart">Start</button><button id="timerReset">Reset</button></div>';
   anchor.insertAdjacentElement('afterend',box);
   const key='zephaniah-study-timer-v2',display=document.getElementById('timerDisplay'),minutes=document.getElementById('timerMinutes'),start=document.getElementById('timerStart'),presets=[...box.querySelectorAll('.timer-preset')];
-  let state={remaining:600,running:false,endsAt:null,preset:null};
+  let state={remaining:600,running:false,endsAt:null,preset:null},alarmId=null;
   try{state={...state,...JSON.parse(localStorage.getItem(key)||'{}')}}catch(e){}
   const clamp=value=>Math.max(1,Math.min(180,Number(value)||10));
   const currentRemaining=()=>state.running&&state.endsAt?Math.max(0,Math.ceil((state.endsAt-Date.now())/1000)):state.remaining;
   const save=()=>localStorage.setItem(key,JSON.stringify(state));
   const draw=()=>{const remaining=currentRemaining(),m=Math.floor(remaining/60),s=remaining%60;display.textContent=remaining?`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`:'Time’s up!';minutes.value=clamp(minutes.value);start.textContent=state.running?'Pause':'Start';presets.forEach(b=>b.classList.toggle('active',state.running&&b.dataset.preset===state.preset))};
   const chime=()=>{try{const audio=new AudioContext(),now=audio.currentTime;[0,1.15,2.3].forEach(repeat=>[0,.28,.56].forEach((offset,index)=>{const tone=audio.createOscillator(),gain=audio.createGain(),at=now+repeat+offset;tone.frequency.value=index===2?880:660;gain.gain.setValueAtTime(.001,at);gain.gain.exponentialRampToValueAtTime(.09,at+.02);gain.gain.exponentialRampToValueAtTime(.001,at+.22);tone.connect(gain).connect(audio.destination);tone.start(at);tone.stop(at+.24)}))}catch(e){}};
-  const finish=()=>{if(!state.running)return;state.running=false;state.endsAt=null;state.remaining=0;state.preset=null;save();draw();chime()};
+  const stopAlarm=()=>{if(alarmId){clearInterval(alarmId);alarmId=null}};
+  const startAlarm=()=>{stopAlarm();chime();alarmId=setInterval(chime,4000)};
+  const finish=()=>{if(!state.running)return;state.running=false;state.endsAt=null;state.remaining=0;state.preset=null;save();draw();startAlarm()};
   const sync=()=>{if(state.running){state.remaining=currentRemaining();if(!state.remaining)finish();else{save();draw()}}else draw()};
-  const setMinutes=(value,preset=null)=>{state={remaining:clamp(value)*60,running:false,endsAt:null,preset};save();draw()};
-  const startTimer=()=>{if(state.running){state.remaining=currentRemaining();state.running=false;state.endsAt=null}else{if(!state.remaining)state.remaining=clamp(minutes.value)*60;state.running=true;state.endsAt=Date.now()+state.remaining*1000}save();draw()};
+  const setMinutes=(value,preset=null)=>{stopAlarm();state={remaining:clamp(value)*60,running:false,endsAt:null,preset};save();draw()};
+  const startTimer=()=>{stopAlarm();if(state.running){state.remaining=currentRemaining();state.running=false;state.endsAt=null}else{if(!state.remaining)state.remaining=clamp(minutes.value)*60;state.running=true;state.endsAt=Date.now()+state.remaining*1000}save();draw()};
   minutes.value=Math.ceil(currentRemaining()/60)||10;
   minutes.onchange=()=>setMinutes(minutes.value);
   document.getElementById('timerFocus30').dataset.preset='30';document.getElementById('timerFocus10').dataset.preset='10';document.getElementById('timerBreak5').dataset.preset='5';
