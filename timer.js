@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   const sync=()=>{if(state.running){state.remaining=currentRemaining();if(!state.remaining)finish();else{save();draw()}}else draw()};
   const setMinutes=(value,preset=null)=>{stopAlarm();state={remaining:clamp(value)*60,running:false,endsAt:null,preset};save();draw()};
   const startTimer=()=>{unlockAudio();stopAlarm();if(state.running){state.remaining=currentRemaining();state.running=false;state.endsAt=null}else{if(!state.remaining)state.remaining=clamp(minutes.value)*60;state.running=true;state.endsAt=Date.now()+state.remaining*1000}save();draw()};
+  window.addEventListener('storage',event=>{if(event.key!==key||!event.newValue)return;try{state={...state,...JSON.parse(event.newValue)};if(!state.running)stopAlarm();sync()}catch(e){}});
   minutes.value=Math.ceil(currentRemaining()/60)||10;
   minutes.onchange=()=>setMinutes(minutes.value);
   document.getElementById('timerFocus30').dataset.preset='30';document.getElementById('timerFocus10').dataset.preset='10';document.getElementById('timerBreak5').dataset.preset='5';
