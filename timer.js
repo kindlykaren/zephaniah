@@ -14,15 +14,15 @@ document.addEventListener('DOMContentLoaded',()=>{
   const clamp=value=>Math.max(1,Math.min(180,Number(value)||10));
   const currentRemaining=()=>state.running&&state.endsAt?Math.max(0,Math.ceil((state.endsAt-Date.now())/1000)):state.remaining;
   const save=()=>localStorage.setItem(key,JSON.stringify(state));
-  const draw=()=>{const remaining=currentRemaining(),m=Math.floor(remaining/60),s=remaining%60,finished=!state.running&&!state.remaining;display.textContent=remaining?`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`:'Time’s up!';box.classList.toggle('finished',finished);minutes.value=clamp(minutes.value);start.textContent=state.running?'Pause':'Start';presets.forEach(b=>b.classList.toggle('active',state.running&&b.dataset.preset===state.preset))};
+  const draw=()=>{const remaining=currentRemaining(),m=Math.floor(remaining/60),s=remaining%60,finished=!state.running&&!state.remaining;display.textContent=remaining?`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`:'Time’s up!';box.classList.toggle('finished',finished);start.textContent=state.running?'Pause':'Start';presets.forEach(b=>b.classList.toggle('active',state.running&&b.dataset.preset===state.preset))};
   const unlockAudio=()=>{try{const Context=window.AudioContext||window.webkitAudioContext;if(!audio&&Context)audio=new Context();audio?.resume()}catch(e){}};
   const chime=()=>{try{if(!audio)return;const now=audio.currentTime;[0,.72].forEach(repeat=>[[523.25,.22],[659.25,.34]].forEach(([frequency,length],index)=>{const tone=audio.createOscillator(),gain=audio.createGain(),at=now+repeat+index*.24;tone.type='sine';tone.frequency.value=frequency;gain.gain.setValueAtTime(.001,at);gain.gain.exponentialRampToValueAtTime(.16,at+.025);gain.gain.exponentialRampToValueAtTime(.001,at+length);tone.connect(gain).connect(audio.destination);tone.start(at);tone.stop(at+length+.03)}))}catch(e){}};
   const stopAlarm=()=>{if(alarmId){clearInterval(alarmId);alarmId=null}};
   const startAlarm=()=>{stopAlarm();chime();alarmId=setInterval(chime,4000)};
   const finish=()=>{if(!state.running)return;state.running=false;state.endsAt=null;state.remaining=0;state.preset=null;save();draw();startAlarm()};
   const sync=()=>{if(state.running){state.remaining=currentRemaining();if(!state.remaining)finish();else{save();draw()}}else draw()};
-  const setMinutes=(value,preset=null)=>{stopAlarm();state={remaining:clamp(value)*60,running:false,endsAt:null,preset};save();draw()};
-  const startTimer=()=>{unlockAudio();stopAlarm();if(state.running){state.remaining=currentRemaining();state.running=false;state.endsAt=null}else{if(!state.remaining)state.remaining=clamp(minutes.value)*60;state.running=true;state.endsAt=Date.now()+state.remaining*1000}save();draw()};
+  const setMinutes=(value,preset=null)=>{const chosen=clamp(value);stopAlarm();minutes.value=chosen;state={remaining:chosen*60,running:false,endsAt:null,preset};save();draw()};
+  const startTimer=()=>{unlockAudio();stopAlarm();if(state.running){state.remaining=currentRemaining();state.running=false;state.endsAt=null}else{const chosen=clamp(minutes.value);minutes.value=chosen;if(!state.remaining)state.remaining=chosen*60;state.running=true;state.endsAt=Date.now()+state.remaining*1000}save();draw()};
   window.addEventListener('storage',event=>{if(event.key!==key||!event.newValue)return;try{state={...state,...JSON.parse(event.newValue)};if(!state.running)stopAlarm();sync()}catch(e){}});
   minutes.value=Math.ceil(currentRemaining()/60)||10;
   minutes.onchange=()=>setMinutes(minutes.value);
