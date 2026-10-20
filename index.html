@@ -48,7 +48,16 @@
 /* Compact, collapsible sticker album: lessons stay visible at a glance. */
 #rewardSummary{margin:14px 0 18px;padding:0;background:#edf1e8;border:1px solid #c5d2c4;border-radius:15px;overflow:hidden}
 #stickerAlbumDetails{width:100%}
-.reward-compact{list-style:none;display:grid;grid-template-columns:minmax(160px,1fr) minmax(220px,310px);gap:10px 18px;align-items:center;padding:12px 16px;cursor:pointer}
+.reward-compact{list-style:none;display:flex;justify-content:space-between;gap:12px;align-items:center;padding:10px 16px;cursor:pointer}
+.reward-compact-title{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 12px}
+.reward-compact-title small{width:100%}
+.reward-compact-title h2{font-size:1.12rem!important;margin:0!important}
+.reward-compact-title p{font-size:.76rem;margin:0}
+#stickerAlbumDetails:not([open]) .reward-compact{min-height:58px}
+#stickerAlbumDetails:not([open]) .reward-compact-title small{display:none}
+#stickerAlbumDetails:not([open]) .reward-expand-label{grid-column:auto;text-align:right}
+#stickerAlbumDetails[open] .reward-compact{background:#e5ece3}
+#stickerAlbumDetails[open] .reward-compact-title small{display:block}
 .reward-compact::-webkit-details-marker{display:none}.reward-compact::marker{content:""}
 .reward-compact-title small{font-size:.67rem;text-transform:uppercase;letter-spacing:.13em;font-weight:800;color:#245b48}
 .reward-compact-title h2{font:500 1.35rem Georgia;margin:3px 0}
@@ -75,16 +84,16 @@
 #rewardSummary .sticker-album{margin:0;padding:0;border:0;background:transparent}
 #rewardSummary .sticker-album>div:first-child h2{font-size:1.35rem}
 #rewardSummary .sticker-display-actions{display:none}
-@media(max-width:620px){#rewardSummary{margin:12px 0 16px}.reward-compact{grid-template-columns:1fr;gap:8px;padding:12px}#rewardSummary .reward-next{width:auto}.reward-expand-label{grid-column:1;text-align:left}.reward-expanded{padding:0 12px 12px}#rewardSummary .sticker-corner-canvas{height:160px;min-height:160px}.sticker-tab{padding:9px 11px;font-size:.83rem}}
+@media(max-width:620px){#rewardSummary{margin:12px 0 16px}.reward-compact{gap:8px;padding:12px}.reward-compact-title{display:block}.reward-compact-title h2{font-size:1.02rem!important}.reward-compact-title p{margin-top:3px}.reward-expand-label{grid-column:auto;text-align:right;white-space:nowrap;font-size:.68rem}#rewardSummary .reward-next{width:auto}.reward-expanded{padding:0 12px 12px}#rewardSummary .sticker-corner-canvas{height:160px;min-height:160px}.sticker-tab{padding:9px 11px;font-size:.83rem}}
 </style><section class="gate" id="gate"><div class="gate-card"><small>Zephaniah — Grade 7</small><h1>My School Day</h1><p>Sign in with an approved family Google account to see the schedule and update this week’s progress.</p><button class="signin" id="signin">Continue with Google</button><div class="status" id="gateStatus">Please sign in to continue.</div></div></section><main class="shell" id="app"><div class="account-bar"><div class="account-bar-inner"><div class="account-controls"><span id="signedInAs"></span><div class="account-buttons"><button id="viewMode" hidden>View as student</button><button id="signout">Sign out</button></div></div></div></div><header><div class="account"><div><small>Zephaniah — Grade 7</small><h1>My School Day</h1></div></div><p>Choose the day. Work down the list. Open the resources or lesson plan when you need them.</p></header><div class="syllabird-links" aria-label="Syllabird shortcuts"><a href="https://app.syllabird.com/home" target="_blank" rel="noopener noreferrer">↗ Syllabird Home</a><a class="calendar-link" href="https://app.syllabird.com/calendar" target="_blank" rel="noopener noreferrer">▦ Syllabird Calendar</a></div><section class="weekbar"><button id="prev" aria-label="Previous week"><span class="nav-label">← Previous</span><span class="nav-arrow">‹</span></button><div class="weektitle"><small>School week</small><h2 id="weekLabel">Loading…</h2><button class="current" id="currentWeek">Current Week</button></div><button id="next" aria-label="Next week"><span class="nav-label">Next →</span><span class="nav-arrow">›</span></button></section><section class="reward-summary" id="rewardSummary" aria-label="Sticker album">
 <details id="stickerAlbumDetails">
 <summary class="reward-compact">
 <div class="reward-compact-title"><small>Schoolwork adventure</small><h2>My Sticker Album</h2><p id="rewardCount">0 of 24 stickers collected</p></div>
-<div class="reward-next"><span class="reward-next-art" id="rewardNextArt">🎁</span><div><strong id="rewardNextTitle">Your next sticker</strong><small id="rewardNextText">Complete schoolwork to unlock stickers.</small></div></div>
-<div class="reward-progress-track" role="progressbar" aria-label="Progress towards next assignment milestone" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0"><div class="reward-progress-fill" id="rewardProgressFill"></div></div>
 <span class="reward-expand-label">Open sticker album <span aria-hidden="true">＋</span></span>
 </summary>
 <div class="reward-expanded">
+<div class="reward-next"><span class="reward-next-art" id="rewardNextArt">🎁</span><div><strong id="rewardNextTitle">Your next sticker</strong><small id="rewardNextText">Complete schoolwork to unlock stickers.</small></div></div>
+<div class="reward-progress-track" role="progressbar" aria-label="Progress towards next assignment milestone" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0"><div class="reward-progress-fill" id="rewardProgressFill"></div></div>
 <div class="reward-summary-foot"><span id="achievementCounts">🏆 0 daily achievements · ⭐ 0 subject achievements</span><span id="rewardSaveStatus">Your collection will be saved.</span></div>
 <div class="sticker-tabs" role="tablist" aria-label="Sticker album views"><button type="button" class="sticker-tab active" id="stickerDisplayTab" role="tab" aria-selected="true" aria-controls="stickerDisplayPanel">Sticker Display</button><button type="button" class="sticker-tab" id="stickerCollectionsTab" role="tab" aria-selected="false" aria-controls="stickerAlbum">Collections</button></div>
 <div id="stickerDisplayPanel" role="tabpanel" aria-labelledby="stickerDisplayTab">
